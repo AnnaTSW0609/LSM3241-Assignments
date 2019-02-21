@@ -75,14 +75,14 @@ ps2_down <- rownames(ps2[ps2$logFC < 0,]) # negative fold changes
 downregulated <- AnnotationDbi::select(hgu133plus2.db,ps2_down,c("SYMBOL","ENTREZID","GENENAME"),keytype="PROBEID")
 
 # export as CSV file and analyse with David (KEGG pathway)
-write.csv(upregulated, "Upregulated_Genes.csv") 
-write.csv(downregulated,'Downregulated_Genes.csv')
+write.csv(upregulated, "Upregulated_Genes_LFC1.csv") 
+write.csv(downregulated,'Downregulated_Genes_LFC1.csv')
 
-
-# rule out the number by infinite 
+# getting the up/down-regulated genes with 2 times LFC for further narrowing down
 interesting_genes <- topTable(fitted.ebayes,number = Inf,p.value = 0.05,lfc=2)
-volcanoplot(fitted.ebayes, main=sprintf("%d features pass our cutoffs",nrow(interesting_genes)))
-points(interesting_genes[['logFC']],-log10(interesting_genes[['P.Value']]),col='red')
-
-interesting_genes_mapped <- AnnotationDbi::select(hgu133plus2.db,rownames(interesting_genes),c("SYMBOL","ENTREZID","GENENAME"),keytype="PROBEID")
-interesting_genes_mapped # this variable stores the mapped 2-fold change genes 
+interesting_genes_up <- rownames(interesting_genes[interesting_genes$logFC > 0,])
+interesting_genes_down <- rownames(interesting_genes[interesting_genes$logFC < 0,])
+interesting_genes_up_mapped <- AnnotationDbi::select(hgu133plus2.db,interesting_genes_up,c("SYMBOL","ENTREZID","GENENAME"),keytype="PROBEID")
+interesting_genes_down_mapped <-  AnnotationDbi::select(hgu133plus2.db,interesting_genes_down,c("SYMBOL","ENTREZID","GENENAME"),keytype="PROBEID")
+write.csv(interesting_genes_up_mapped,'Interesting_2_fold_genes_mapped_up.csv')
+write.csv(interesting_genes_down_mapped,'Interesting_2_fold_genes_mapped_down.csv')
