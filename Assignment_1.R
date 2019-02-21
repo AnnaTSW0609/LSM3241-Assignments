@@ -77,23 +77,3 @@ downregulated <- AnnotationDbi::select(hgu133plus2.db,interesting_genes_down,c("
 # export as CSV file and analyse with David (KEGG pathway)
 write.csv(upregulated, "Upregulated_Genes.csv") 
 write.csv(downregulated,'Downregulated_Genes.csv')
-
-## volcano plots 
-volcanoplot(fitted.ebayes)
-# rule out the number by infinite 
-volcanoplot(fitted.ebayes, main=sprintf("%d features pass our cutoffs",nrow(interesting_genes)))
-points(interesting_genes[['logFC']],-log10(interesting_genes[['P.Value']]),col='red')
-
-
-## heat map
-eset_of_interest <- eset[rownames(interesting_genes),] # just do heatmap on interesting  genes but not entire gene set or would crush
-heatmap(exprs(eset_of_interest))
-# this heatmap does not actually work best
-# need to specify the difference 
-library(RColorBrewer) # need to download 
-eset_of_interest <- eset[rownames(interesting_genes),]
-heatmap(exprs(eset_of_interest),
-        labCol=eset$culture,labRow=NA,
-        col       = rev(brewer.pal(10, "RdBu")),
-        distfun   = function(x) as.dist(1-cor(t(x)))) # correlation instead of difference 
-# if anything goes wrong just try to change the distance function and try to make the heatmap beautiful 
