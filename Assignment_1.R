@@ -45,7 +45,7 @@ contrasts
 fit <- lmFit(eset, model) 
 fitted.contrast <- contrasts.fit(fit,contrasts) 
 fitted.ebayes <- eBayes(fitted.contrast) # prior distribution is derived from data; given prior and determine now
-a
+
 # B statistics is the log-odds that the gene is differentially expressed
 
 # creating a character matrix of the top 10 probe sets
@@ -66,14 +66,23 @@ AnnotationDbi::select(hgu133plus2.db,ps,c("SYMBOL","ENTREZID","GENENAME"),keytyp
 
 
 # Getting a table of upregulated genes 
-interesting_genes <- topTable(fitted.ebayes,number = Inf,p.value = 0.05,lfc=2)
-interesting_genes_up <- rownames(ps2[ps2$logFC > 0,]) # positive fold changes 
-upregulated <- AnnotationDbi::select(hgu133plus2.db,interesting_genes_up,c("SYMBOL","ENTREZID","GENENAME"),keytype="PROBEID")
+ps2 <- topTable(fitted.ebayes,number = Inf,p.value = 0.05,lfc=1)
+ps2_up <- rownames(ps2[ps2$logFC > 0,]) # positive fold changes 
+upregulated <- AnnotationDbi::select(hgu133plus2.db,ps2_up,c("SYMBOL","ENTREZID","GENENAME"),keytype="PROBEID")
 
 # Getting a table of downregulated genes 
-interesting_genes_down <- rownames(ps2[ps2$logFC < 0,]) # negative fold changes 
-downregulated <- AnnotationDbi::select(hgu133plus2.db,interesting_genes_down,c("SYMBOL","ENTREZID","GENENAME"),keytype="PROBEID")
+ps2_down <- rownames(ps2[ps2$logFC < 0,]) # negative fold changes 
+downregulated <- AnnotationDbi::select(hgu133plus2.db,ps2_down,c("SYMBOL","ENTREZID","GENENAME"),keytype="PROBEID")
 
 # export as CSV file and analyse with David (KEGG pathway)
 write.csv(upregulated, "Upregulated_Genes.csv") 
 write.csv(downregulated,'Downregulated_Genes.csv')
+
+
+# rule out the number by infinite 
+interesting_genes <- topTable(fitted.ebayes,number = Inf,p.value = 0.05,lfc=2)
+volcanoplot(fitted.ebayes, main=sprintf("%d features pass our cutoffs",nrow(interesting_genes)))
+points(interesting_genes[['logFC']],-log10(interesting_genes[['P.Value']]),col='red')
+
+interesting_genes_mapped <- AnnotationDbi::select(hgu133plus2.db,rownames(interesting_genes),c("SYMBOL","ENTREZID","GENENAME"),keytype="PROBEID")
+interesting_genes_mapped # this variable stores the mapped 2-fold change genes 
