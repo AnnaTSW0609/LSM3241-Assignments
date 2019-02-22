@@ -40,9 +40,7 @@ contrasts <- makeContrasts(miR203 - control, levels=model) # contrast matrix for
 # fitting our data to the models we have built  
 fit <- lmFit(eset, model) 
 fitted.contrast <- contrasts.fit(fit,contrasts) 
-fitted.ebayes <- eBayes(fitted.contrast) # prior distribution is derived from data; given prior and determine now
-
-# B statistics is the log-odds that the gene is differentially expressed
+fitted.ebayes <- eBayes(fitted.contrast) 
 
 # creating a character matrix of the top 10 probe sets
 ps <- rownames(topTable(fitted.ebayes))  
@@ -58,7 +56,6 @@ library(hgu133plus2.db) # import library for annotation
 AnnotationDbi::select(hgu133plus2.db,ps,c("SYMBOL","ENTREZID","GENENAME"),keytype="PROBEID") 
 # the probe ID is a probe set ID which does not tell us any biological information (e.g. which gene does the probeID corresponds to)
 # select from a database, using the first 10 probes, and gives it a vector of the column names, and pass in the key; specifying)
-
 
 # Getting a table of upregulated genes 
 ps2 <- topTable(fitted.ebayes,number = Inf,p.value = 0.05,lfc=1)
@@ -77,7 +74,7 @@ write.csv(downregulated,'Downregulated_Genes_LFC1.csv')
 volcanoplot(fitted.ebayes, main=sprintf("%d features pass our cutoffs",nrow(interesting_genes)))
 points(interesting_genes[['logFC']],-log10(interesting_genes[['P.Value']]),col='red')
 
-# getting the up/down-regulated genes with 2 times LFC for further narrowing down, those circled in red in the step above
+# getting the up/down-regulated genes with 2 times LFC for further narrowing down, those circled in red in the volcano plot
 interesting_genes <- topTable(fitted.ebayes,number = Inf,p.value = 0.05,lfc=2)
 interesting_genes_up <- rownames(interesting_genes[interesting_genes$logFC > 0,])
 interesting_genes_down <- rownames(interesting_genes[interesting_genes$logFC < 0,])
