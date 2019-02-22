@@ -83,5 +83,7 @@ interesting_genes_up <- rownames(interesting_genes[interesting_genes$logFC > 0,]
 interesting_genes_down <- rownames(interesting_genes[interesting_genes$logFC < 0,])
 interesting_genes_up_mapped <- AnnotationDbi::select(hgu133plus2.db,interesting_genes_up,c("SYMBOL","ENTREZID","GENENAME"),keytype="PROBEID")
 interesting_genes_down_mapped <-  AnnotationDbi::select(hgu133plus2.db,interesting_genes_down,c("SYMBOL","ENTREZID","GENENAME"),keytype="PROBEID")
+
+# exporting the genes into CSV files for better visualization
 write.csv(interesting_genes_up_mapped,'Interesting_2_fold_genes_mapped_up.csv')
 write.csv(interesting_genes_down_mapped,'Interesting_2_fold_genes_mapped_down.csv')
